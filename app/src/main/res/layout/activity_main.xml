@@ -50,28 +50,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <fragment
-            android:id="@+id/place_autocomplete_fragment_from"
-            android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
-            android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:background="@android:color/background_light"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <fragment
-            android:id="@+id/place_autocomplete_fragment_to"
-            android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
-            android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:layout_marginTop="32dp"
-            android:background="@android:color/background_light"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/place_autocomplete_fragment_from" />
-
         <Button
             android:id="@+id/button_get_price"
             android:layout_width="0dp"
@@ -81,9 +59,32 @@
             android:padding="14dp"
             android:text="Дізнатись ціну"
             android:textColor="@android:color/background_light"
-            app:layout_constraintEnd_toEndOf="@+id/place_autocomplete_fragment_from"
-            app:layout_constraintStart_toStartOf="@+id/place_autocomplete_fragment_from"
-            app:layout_constraintTop_toBottomOf="@+id/place_autocomplete_fragment_to" />
+            app:layout_constraintEnd_toEndOf="@+id/edit_to"
+            app:layout_constraintStart_toStartOf="@+id/edit_to"
+            app:layout_constraintTop_toBottomOf="@+id/edit_to" />
+
+        <EditText
+            android:id="@+id/edit_from"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Звідки"
+            android:inputType="textPersonName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/edit_to"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:ems="10"
+            android:hint="Куди"
+            android:inputType="textPersonName"
+            app:layout_constraintEnd_toEndOf="@+id/edit_from"
+            app:layout_constraintStart_toStartOf="@+id/edit_from"
+            app:layout_constraintTop_toBottomOf="@+id/edit_from" />
     </android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>

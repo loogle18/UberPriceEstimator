@@ -1,48 +1,54 @@
 package com.example.sviat_minato.uberpriceestimator
 
+import android.app.Activity
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import com.google.android.gms.common.api.Status
-import com.google.android.gms.location.places.Place
-import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment
-import com.google.android.gms.location.places.ui.PlaceSelectionListener
+import com.google.android.gms.location.places.ui.PlaceAutocomplete
+import android.content.Intent
+import android.widget.EditText
+
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        addAddressSuggestionListeners()
+
+        val autocompleteIntent = PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+                .build(this)
+
+        handleEditFromTo(autocompleteIntent)
     }
 
 
-    private fun addAddressSuggestionListeners() {
-        val autocompleteFragmentFrom = fragmentManager.findFragmentById(R.id.place_autocomplete_fragment_from) as PlaceAutocompleteFragment
-        val autocompleteFragmentTo = fragmentManager.findFragmentById(R.id.place_autocomplete_fragment_to) as PlaceAutocompleteFragment
-        autocompleteFragmentFrom.setHint("Звідки")
-        autocompleteFragmentTo.setHint("Куди")
+    private fun handleEditFromTo(intent: Intent) {
+        val editFrom = findViewById<EditText>(R.id.edit_from)
+        val editTo = findViewById<EditText>(R.id.edit_to)
 
-        autocompleteFragmentFrom.setOnPlaceSelectedListener(object : PlaceSelectionListener {
-            override fun onPlaceSelected(place: Place) {
+        editFrom.setOnClickListener {
+            startActivityForResult(intent, 1)
+        }
+
+        editTo.setOnClickListener {
+            startActivityForResult(intent, 2)
+        }
+    }
+
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+        if (listOf(1, 2).contains(requestCode)) {
+            if (resultCode == Activity.RESULT_OK) {
+                val place = PlaceAutocomplete.getPlace(this, data)
                 val lat = place.latLng.latitude
                 val lng = place.latLng.longitude
                 println( "Place: lat($lat) lng($lng)")
-            }
 
-            override fun onError(status: Status) {
-                println("An error occurred: $status")
-            }
-        })
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                val status = PlaceAutocomplete.getStatus(this, data)
+                println("An error occurred: ${status.statusMessage}")
 
-        autocompleteFragmentTo.setOnPlaceSelectedListener(object : PlaceSelectionListener {
-            override fun onPlaceSelected(place: Place) {
-                val lat = place.latLng.latitude
-                val lng = place.latLng.longitude
-                println( "Place: lat($lat) lng($lng)")
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+                println("Canceled")
             }
-
-            override fun onError(status: Status) {
-                println("An error occurred: $status")
-            }
-        })
+        }
     }
 }
