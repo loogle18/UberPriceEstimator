@@ -72,7 +72,8 @@
             android:inputType="textPersonName"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:focusable="false"/>
 
         <EditText
             android:id="@+id/edit_to"
@@ -84,7 +85,8 @@
             android:inputType="textPersonName"
             app:layout_constraintEnd_toEndOf="@+id/edit_from"
             app:layout_constraintStart_toStartOf="@+id/edit_from"
-            app:layout_constraintTop_toBottomOf="@+id/edit_from" />
+            app:layout_constraintTop_toBottomOf="@+id/edit_from"
+            android:focusable="false"/>
     </android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>
