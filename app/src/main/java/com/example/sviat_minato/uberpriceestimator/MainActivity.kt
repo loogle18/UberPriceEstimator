@@ -29,6 +29,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var editFrom: EditText
     lateinit var editTo: EditText
     lateinit var buttonGetPrice: Button
+    var fromCoordinates: LatLng? = null
+    var toCoordinates: LatLng? = null
     private var locationManager: LocationManager? = null
     var latLngBounds: LatLngBounds? = null
     var isLocationAvailable = false
@@ -177,15 +179,14 @@ class MainActivity : AppCompatActivity() {
         if (listOf(1, 2).contains(requestCode)) {
             if (resultCode == Activity.RESULT_OK) {
                 val place = PlaceAutocomplete.getPlace(this, data)
-                val lat = place.latLng.latitude
-                val lng = place.latLng.longitude
                 val address = place.address
-                val editText = if (requestCode == 1) this.editFrom else this.editTo
-
-                editText.setText(address)
-
-                println( "Place: lat($lat) lng($lng)")
-
+                if (requestCode == 1) {
+                    editFrom.setText(address)
+                    fromCoordinates = place.latLng
+                } else {
+                    editTo.setText(address)
+                    toCoordinates = place.latLng
+                }
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 val status = PlaceAutocomplete.getStatus(this, data)
                 println("An error occurred: ${status.statusMessage}")
