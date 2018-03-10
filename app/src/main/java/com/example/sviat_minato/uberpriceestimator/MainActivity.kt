@@ -16,11 +16,18 @@ import android.location.LocationProvider
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
+import android.util.Base64
 import android.widget.Button
 import android.widget.EditText
+import com.example.sviat_minato.uberpriceestimator.BuildConfig.API_USER_LOGIN
+import com.example.sviat_minato.uberpriceestimator.BuildConfig.API_USER_PASSWORD
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.android.extension.responseJson
+import com.github.kittinunf.result.Result
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.SphericalUtil
 import com.google.android.gms.maps.model.LatLng
+import java.nio.charset.StandardCharsets
 
 
 
@@ -34,7 +41,8 @@ class MainActivity : AppCompatActivity() {
     private var locationManager: LocationManager? = null
     var latLngBounds: LatLngBounds? = null
     var isLocationAvailable = false
-    var MY_REQUEST_ACCESS_COARSE_LOCATION = 0
+    val MY_REQUEST_ACCESS_COARSE_LOCATION = 0
+    val UBER_PRICES_ESTIMATOR_BASE_API_URL = "https://uber-prices-estimator.herokuapp.com"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,7 +77,29 @@ class MainActivity : AppCompatActivity() {
     private fun buttonGetPriceClicked() {
         buttonGetPrice.setOnClickListener() {
             if (editFrom.text.isNotBlank() && editTo.text.isNotBlank()) {
-                showAlert("Getting price for ride from ${editFrom.text} to ${editFrom.text}")
+                val bytesOfToken = "$API_USER_LOGIN:$API_USER_PASSWORD".toByteArray(StandardCharsets.UTF_8)
+                val base64Token = Base64.encodeToString(bytesOfToken, Base64.NO_WRAP)
+                val data = "{\"token\": \"$base64Token\",  \"slat\": \"${fromCoordinates?.latitude}\", " +
+                        "\"slng\": \"${fromCoordinates?.longitude}\", \"elat\": \"${toCoordinates?.latitude}\", " +
+                        "\"elng\": \"${toCoordinates?.longitude}\"}"
+
+                Fuel.post("$UBER_PRICES_ESTIMATOR_BASE_API_URL/api/price_eta").body(data).responseJson { _, _, result ->
+                    when (result) {
+                        is Result.Success -> {
+                            val isSuccess = result.get().obj().get("success")
+                            if (isSuccess as Boolean) {
+                                val resultText = result.get().obj().get("eta_text")
+                                showAlert(resultText as String)
+                            } else {
+                                val error = result.get().obj().get("error")
+                                showAlert(error as String)
+                            }
+                        }
+                        is Result.Failure -> {
+                            showAlert(result.error.localizedMessage)
+                        }
+                    }
+                }
             }
         }
     }
@@ -80,7 +110,7 @@ class MainActivity : AppCompatActivity() {
         with (alert) {
             setMessage(message)
 
-            setPositiveButton("Close") { dialog, whichButton ->
+            setPositiveButton("Close") { dialog, _ ->
                 dialog.dismiss()
             }
         }
