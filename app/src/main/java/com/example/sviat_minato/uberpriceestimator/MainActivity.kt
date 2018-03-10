@@ -215,12 +215,12 @@ class MainActivity : AppCompatActivity() {
         if (listOf(1, 2).contains(requestCode)) {
             if (resultCode == Activity.RESULT_OK) {
                 val place = PlaceAutocomplete.getPlace(this, data)
-                val address = place.address
+                val name = place.name
                 if (requestCode == 1) {
-                    editFrom.setText(address)
+                    editFrom.setText(name)
                     fromCoordinates = place.latLng
                 } else {
-                    editTo.setText(address)
+                    editTo.setText(name)
                     toCoordinates = place.latLng
                 }
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
