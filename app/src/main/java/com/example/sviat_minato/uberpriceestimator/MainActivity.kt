@@ -16,6 +16,8 @@ import android.location.LocationProvider
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Base64
 import android.view.View
 import android.widget.Button
@@ -70,6 +72,8 @@ class MainActivity : AppCompatActivity() {
             editFromAndToClicked(autocompleteIntent)
             clearFromAndToButtonClicked()
             buttonGetPriceClicked()
+            addChangeEditTextListener(editFrom)
+            addChangeEditTextListener(editTo)
         }
     }
 
@@ -81,6 +85,23 @@ class MainActivity : AppCompatActivity() {
         editTo.setOnClickListener {
             startActivityForResult(intent, 2)
         }
+    }
+
+    private fun addChangeEditTextListener(editText: EditText) {
+        val changeEditToTextListener: TextWatcher = object: TextWatcher {
+            override fun beforeTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
+
+            override fun onTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
+
+            override fun afterTextChanged(newText: Editable?) {
+                println(newText.isNullOrEmpty())
+                val visibility = if (newText.isNullOrEmpty()) View.GONE else View.VISIBLE
+                val clearButton = if (editText.id == editFrom.id) buttonClearFrom else buttonClearTo
+                clearButton.visibility = visibility
+            }
+        }
+
+        editText.addTextChangedListener(changeEditToTextListener)
     }
 
     private fun clearFromAndToButtonClicked() {
