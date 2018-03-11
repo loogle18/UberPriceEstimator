@@ -37,6 +37,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var autocompleteIntent: Intent
     lateinit var editFrom: EditText
     lateinit var editTo: EditText
+    lateinit var buttonClearFrom: Button
+    lateinit var buttonClearTo: Button
     lateinit var buttonGetPrice: Button
     lateinit var progressBar: ProgressBar
     var fromCoordinates: LatLng? = null
@@ -53,6 +55,8 @@ class MainActivity : AppCompatActivity() {
 
         editFrom = findViewById<EditText>(R.id.edit_from)
         editTo = findViewById<EditText>(R.id.edit_to)
+        buttonClearFrom = findViewById<Button>(R.id.button_clear_from)
+        buttonClearTo = findViewById<Button>(R.id.button_clear_to)
         buttonGetPrice = findViewById<Button>(R.id.button_get_price)
         progressBar = findViewById<ProgressBar>(R.id.progress_bar)
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager?
@@ -64,6 +68,7 @@ class MainActivity : AppCompatActivity() {
             requestLocationUpdates()
             initAutocompleteIntent()
             editFromAndToClicked(autocompleteIntent)
+            clearFromAndToButtonClicked()
             buttonGetPriceClicked()
         }
     }
@@ -75,6 +80,16 @@ class MainActivity : AppCompatActivity() {
 
         editTo.setOnClickListener {
             startActivityForResult(intent, 2)
+        }
+    }
+
+    private fun clearFromAndToButtonClicked() {
+        buttonClearFrom.setOnClickListener {
+            editFrom.setText("")
+        }
+
+        buttonClearTo.setOnClickListener {
+            editTo.setText("")
         }
     }
 
