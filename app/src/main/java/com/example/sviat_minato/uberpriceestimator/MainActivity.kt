@@ -9,6 +9,7 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -118,6 +119,9 @@ class MainActivity : AppCompatActivity() {
         buttonGetPrice.setOnClickListener() {
             if (editFrom.text.isNotBlank() && editTo.text.isNotBlank()) {
                 progressBar.visibility = View.VISIBLE
+                editFrom.isEnabled = false
+                editTo.isEnabled = false
+                buttonGetPrice.isEnabled = false
                 val bytesOfToken = "$API_USER_LOGIN:$API_USER_PASSWORD".toByteArray(StandardCharsets.UTF_8)
                 val base64Token = Base64.encodeToString(bytesOfToken, Base64.NO_WRAP)
                 val data = "{\"token\": \"$base64Token\",  \"slat\": \"${fromCoordinates?.latitude}\", " +
@@ -140,6 +144,9 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     progressBar.visibility = View.GONE
+                    editFrom.isEnabled = true
+                    editTo.isEnabled = true
+                    buttonGetPrice.isEnabled = true
                     showAlert(message as String)
                 }
             }
