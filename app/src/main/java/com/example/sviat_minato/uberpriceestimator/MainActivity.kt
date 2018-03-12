@@ -16,13 +16,11 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Base64
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
-import com.example.sviat_minato.uberpriceestimator.BuildConfig.API_USER_LOGIN
-import com.example.sviat_minato.uberpriceestimator.BuildConfig.API_USER_PASSWORD
+import com.example.sviat_minato.uberpriceestimator.BuildConfig.UBER_API_SERVER_TOKEN
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.android.extension.responseJson
 import com.github.kittinunf.result.Result
@@ -30,7 +28,6 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.SphericalUtil
 import com.google.android.gms.maps.model.LatLng
 import java.io.IOException
-import java.nio.charset.StandardCharsets
 import java.util.*
 
 
@@ -51,7 +48,7 @@ class MainActivity : AppCompatActivity() {
     val MY_REQUEST_ACCESS_FINE_LOCATION = 0
     val MIN_DISTANCE_IN_METERS_CHANGE_FOR_LOCATION_UPDATES = 10f
     val MIN_TIME_BETWEEN_UPDATES: Long = 60000
-    val UBER_PRICES_ESTIMATOR_BASE_API_URL = "https://uber-prices-estimator.herokuapp.com"
+    val UBER_API_ESTIMATES_PRICE_URL = "https://api.uber.com/v1.2/estimates/price"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -145,29 +142,28 @@ class MainActivity : AppCompatActivity() {
                 editFrom.isEnabled = false
                 editTo.isEnabled = false
                 buttonGetPrice.isEnabled = false
-                val bytesOfToken = "$API_USER_LOGIN:$API_USER_PASSWORD".toByteArray(StandardCharsets.UTF_8)
-                val base64Token = Base64.encodeToString(bytesOfToken, Base64.NO_WRAP)
-                val data = "{\"token\": \"$base64Token\",  \"slat\": \"${fromCoordinates?.latitude}\", " +
-                        "\"slng\": \"${fromCoordinates?.longitude}\", \"elat\": \"${toCoordinates?.latitude}\", " +
-                        "\"elng\": \"${toCoordinates?.longitude}\"}"
 
-                Fuel.post("$UBER_PRICES_ESTIMATOR_BASE_API_URL/api/price_eta").body(data).responseJson { _, _, result ->
-                    var message: Any = ""
+                val params = listOf("start_latitude" to fromCoordinates?.latitude, "start_longitude" to fromCoordinates?.longitude,
+                        "end_latitude" to toCoordinates?.latitude, "end_longitude" to toCoordinates?.longitude)
+
+                Fuel.get(UBER_API_ESTIMATES_PRICE_URL, params).header("Authorization" to "Token $UBER_API_SERVER_TOKEN").responseJson { _, _, result ->
+                    var message = "Щось пішло не так. Неможливо знайти ціну по заданим координатам. Перевірте правильність написання."
                     var isSuccess = false
                     when (result) {
                         is Result.Success -> {
-                            val success = result.get().obj().get("success")
-                            if (success as Boolean) {
-                                message = result.get().obj().get("eta_text")
-                                isSuccess = success
-                            } else {
-                                message = result.get().obj().get("error")
+                            val pricesArray = result.get().obj().getJSONArray("prices")
+                            if (pricesArray != null && pricesArray[0] != null) {
+                                val price = pricesArray.getJSONObject(0)
+                                val highEta = (price.get("high_estimate") as Double).toInt()
+                                val lowEta = (price.get("low_estimate") as Double).toInt()
+                                val meanEta = (highEta + lowEta) / 2
+
+                                isSuccess = true
+                                message = "Приблизна вартість від $lowEta до $highEta грн.\nСередня: $meanEta грн."
                             }
                         }
-                        is Result.Failure -> {
-                            message = result.error.localizedMessage
-                        }
                     }
+
                     progressBar.visibility = View.GONE
                     editFrom.isEnabled = true
                     editTo.isEnabled = true
