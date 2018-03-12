@@ -9,11 +9,7 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
-import android.location.LocationProvider
+import android.location.*
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
@@ -32,8 +28,9 @@ import com.github.kittinunf.result.Result
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.SphericalUtil
 import com.google.android.gms.maps.model.LatLng
+import java.io.IOException
 import java.nio.charset.StandardCharsets
-
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -43,13 +40,16 @@ class MainActivity : AppCompatActivity() {
     lateinit var buttonClearFrom: Button
     lateinit var buttonClearTo: Button
     lateinit var buttonGetPrice: Button
+    lateinit var buttonGetLocation: Button
     lateinit var progressBar: ProgressBar
     var fromCoordinates: LatLng? = null
     var toCoordinates: LatLng? = null
     private var locationManager: LocationManager? = null
     var latLngBounds: LatLngBounds? = null
     var isLocationAvailable = false
-    val MY_REQUEST_ACCESS_COARSE_LOCATION = 0
+    val MY_REQUEST_ACCESS_FINE_LOCATION = 0
+    val MIN_DISTANCE_IN_METERS_CHANGE_FOR_LOCATION_UPDATES = 10f
+    val MIN_TIME_BETWEEN_UPDATES: Long = 60000
     val UBER_PRICES_ESTIMATOR_BASE_API_URL = "https://uber-prices-estimator.herokuapp.com"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,6 +61,7 @@ class MainActivity : AppCompatActivity() {
         buttonClearFrom = findViewById<Button>(R.id.button_clear_from)
         buttonClearTo = findViewById<Button>(R.id.button_clear_to)
         buttonGetPrice = findViewById<Button>(R.id.button_get_price)
+        buttonGetLocation = findViewById<Button>(R.id.button_get_location)
         progressBar = findViewById<ProgressBar>(R.id.progress_bar)
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager?
         val playServicesConnectionResult = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
@@ -68,11 +69,12 @@ class MainActivity : AppCompatActivity() {
 
         if (playServicesConnectionResult == ConnectionResult.SUCCESS) {
             requestNeededPermissions()
-            requestLocationUpdates()
+            requestLocationUpdatesAndReturnLastKnown()
             initAutocompleteIntent()
             editFromAndToClicked(autocompleteIntent)
             clearFromAndToButtonClicked()
             buttonGetPriceClicked()
+            buttonGetLocationClicked()
             addChangeEditTextListener(editFrom)
             addChangeEditTextListener(editTo)
         }
@@ -97,8 +99,12 @@ class MainActivity : AppCompatActivity() {
             override fun afterTextChanged(newText: Editable?) {
                 println(newText.isNullOrEmpty())
                 val visibility = if (newText.isNullOrEmpty()) View.GONE else View.VISIBLE
-                val clearButton = if (editText.id == editFrom.id) buttonClearFrom else buttonClearTo
-                clearButton.visibility = visibility
+                if (editText.id == editFrom.id) {
+                    buttonClearFrom.visibility = visibility
+                    buttonGetLocation.visibility = if (newText.isNullOrEmpty()) View.VISIBLE else View.GONE
+                } else {
+                    buttonClearTo.visibility = visibility
+                }
             }
         }
 
@@ -112,6 +118,24 @@ class MainActivity : AppCompatActivity() {
 
         buttonClearTo.setOnClickListener {
             editTo.setText("")
+        }
+    }
+
+    private fun buttonGetLocationClicked() {
+        buttonGetLocation.setOnClickListener() {
+            val geoCoder = Geocoder(applicationContext, Locale.getDefault())
+            requestLocationUpdatesAndReturnLastKnown()?.let {
+                try {
+                    val listAddresses = geoCoder.getFromLocation(it.latitude, it.longitude, 1);
+                    if (listAddresses != null && listAddresses.isNotEmpty()) {
+                        val currentAddress = listAddresses[0]
+                        editFrom.setText(currentAddress.getAddressLine(0))
+                        fromCoordinates = LatLng(currentAddress.latitude, currentAddress.longitude)
+                    }
+                } catch (error: IOException) {
+                    println(error.localizedMessage)
+                }
+            }
         }
     }
 
@@ -199,20 +223,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestNeededPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
-                    arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
-                    MY_REQUEST_ACCESS_COARSE_LOCATION)
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    MY_REQUEST_ACCESS_FINE_LOCATION)
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
-            MY_REQUEST_ACCESS_COARSE_LOCATION -> {
+            MY_REQUEST_ACCESS_FINE_LOCATION -> {
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    requestLocationUpdates()
+                    requestLocationUpdatesAndReturnLastKnown()
                     initAutocompleteIntent()
                     editFromAndToClicked(autocompleteIntent)
                 }
@@ -220,16 +244,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun requestLocationUpdates() {
+    private fun requestLocationUpdatesAndReturnLastKnown(): LatLng? {
+        var latLng: LatLng? = null
+
         try {
-            locationManager?.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0L, 0f, locationListener)
+            locationManager?.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BETWEEN_UPDATES,
+                    MIN_DISTANCE_IN_METERS_CHANGE_FOR_LOCATION_UPDATES, locationListener)
             locationManager?.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)?.let {
-                latLngBounds = toBounds(LatLng(it.latitude, it.longitude))
+                latLng = LatLng(it.latitude, it.longitude)
+                isLocationAvailable = true
+                latLngBounds = toBounds(latLng!!)
             }
-            isLocationAvailable = true
         } catch(exception: SecurityException) {
-            println(exception)
+            isLocationAvailable = false
+            println(exception.localizedMessage)
         }
+
+        return latLng
     }
 
     private val locationListener: LocationListener = object: LocationListener {
