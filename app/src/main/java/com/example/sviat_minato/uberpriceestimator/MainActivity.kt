@@ -2,6 +2,7 @@ package com.example.sviat_minato.uberpriceestimator
 
 import android.Manifest
 import android.app.Activity
+import android.content.DialogInterface
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.google.android.gms.location.places.ui.PlaceAutocomplete
@@ -56,8 +57,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        editFrom = findViewById<EditText>(R.id.edit_from)
-        editTo = findViewById<EditText>(R.id.edit_to)
+        editFrom = findViewById<EditText>(R.id.edit_duration)
+        editTo = findViewById<EditText>(R.id.edit_min_rebate)
         buttonClearFrom = findViewById<Button>(R.id.button_clear_from)
         buttonClearTo = findViewById<Button>(R.id.button_clear_to)
         buttonGetPrice = findViewById<Button>(R.id.button_get_price)
@@ -152,11 +153,13 @@ class MainActivity : AppCompatActivity() {
 
                 Fuel.post("$UBER_PRICES_ESTIMATOR_BASE_API_URL/api/price_eta").body(data).responseJson { _, _, result ->
                     var message: Any = ""
+                    var isSuccess = false
                     when (result) {
                         is Result.Success -> {
-                            val isSuccess = result.get().obj().get("success")
-                            if (isSuccess as Boolean) {
+                            val success = result.get().obj().get("success")
+                            if (success as Boolean) {
                                 message = result.get().obj().get("eta_text")
+                                isSuccess = success
                             } else {
                                 message = result.get().obj().get("error")
                             }
@@ -169,20 +172,27 @@ class MainActivity : AppCompatActivity() {
                     editFrom.isEnabled = true
                     editTo.isEnabled = true
                     buttonGetPrice.isEnabled = true
-                    showAlert(message as String)
+                    showAlert(message as String, isSuccess)
                 }
             }
         }
     }
 
-    private fun showAlert(message: String) {
+    private fun showAlert(message: String, isSuccess: Boolean) {
         val alert = AlertDialog.Builder(this)
 
         with (alert) {
             setMessage(message)
 
-            setPositiveButton("Close") { dialog, _ ->
+            setNegativeButton("Close") { dialog, _ ->
                 dialog.dismiss()
+            }
+
+            if (isSuccess) {
+                setPositiveButton("Знайти нижчу ціну", DialogInterface.OnClickListener { _, _ ->
+                    val newIntent = Intent(applicationContext, GetLowerPriceActivity::class.java)
+                    this@MainActivity.startActivity(newIntent)
+                })
             }
         }
 
