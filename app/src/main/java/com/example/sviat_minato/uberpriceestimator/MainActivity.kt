@@ -91,15 +91,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addChangeEditTextListener(editText: EditText) {
+        val isEditFrom = editText.id == editFrom.id
         val changeEditToTextListener: TextWatcher = object: TextWatcher {
             override fun beforeTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
-
             override fun onTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
-
             override fun afterTextChanged(newText: Editable?) {
-                println(newText.isNullOrEmpty())
                 val visibility = if (newText.isNullOrEmpty()) View.GONE else View.VISIBLE
-                if (editText.id == editFrom.id) {
+                if (isEditFrom) {
                     buttonClearFrom.visibility = visibility
                     buttonGetLocation.visibility = if (newText.isNullOrEmpty()) View.VISIBLE else View.GONE
                 } else {
