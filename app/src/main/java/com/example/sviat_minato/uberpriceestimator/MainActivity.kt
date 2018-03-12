@@ -2,7 +2,6 @@ package com.example.sviat_minato.uberpriceestimator
 
 import android.Manifest
 import android.app.Activity
-import android.content.DialogInterface
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.google.android.gms.location.places.ui.PlaceAutocomplete
@@ -32,35 +31,35 @@ import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
-    lateinit var autocompleteIntent: Intent
-    lateinit var editFrom: EditText
-    lateinit var editTo: EditText
-    lateinit var buttonClearFrom: Button
-    lateinit var buttonClearTo: Button
-    lateinit var buttonGetPrice: Button
-    lateinit var buttonGetLocation: Button
-    lateinit var progressBar: ProgressBar
-    var fromCoordinates: LatLng? = null
-    var toCoordinates: LatLng? = null
+    private lateinit var autocompleteIntent: Intent
+    private lateinit var editFrom: EditText
+    private lateinit var editTo: EditText
+    private lateinit var buttonClearFrom: Button
+    private lateinit var buttonClearTo: Button
+    private lateinit var buttonGetPrice: Button
+    private lateinit var buttonGetLocation: Button
+    private lateinit var progressBar: ProgressBar
+    private var fromCoordinates: LatLng? = null
+    private var toCoordinates: LatLng? = null
     private var locationManager: LocationManager? = null
-    var latLngBounds: LatLngBounds? = null
-    var isLocationAvailable = false
-    val MY_REQUEST_ACCESS_FINE_LOCATION = 0
-    val MIN_DISTANCE_IN_METERS_CHANGE_FOR_LOCATION_UPDATES = 10f
-    val MIN_TIME_BETWEEN_UPDATES: Long = 60000
-    val UBER_API_ESTIMATES_PRICE_URL = "https://api.uber.com/v1.2/estimates/price"
+    private var latLngBounds: LatLngBounds? = null
+    private var isLocationAvailable = false
+    private val MY_REQUEST_ACCESS_FINE_LOCATION = 0
+    private val MIN_DISTANCE_IN_METERS_CHANGE_FOR_LOCATION_UPDATES = 10f
+    private val MIN_TIME_BETWEEN_UPDATES: Long = 60000
+    private val UBER_API_ESTIMATES_PRICE_URL = "https://api.uber.com/v1.2/estimates/price"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        editFrom = findViewById<EditText>(R.id.edit_duration)
-        editTo = findViewById<EditText>(R.id.edit_min_rebate)
-        buttonClearFrom = findViewById<Button>(R.id.button_clear_from)
-        buttonClearTo = findViewById<Button>(R.id.button_clear_to)
-        buttonGetPrice = findViewById<Button>(R.id.button_get_price)
-        buttonGetLocation = findViewById<Button>(R.id.button_get_location)
-        progressBar = findViewById<ProgressBar>(R.id.progress_bar)
+        editFrom = findViewById(R.id.edit_duration)
+        editTo = findViewById(R.id.edit_min_rebate)
+        buttonClearFrom = findViewById(R.id.button_clear_from)
+        buttonClearTo = findViewById(R.id.button_clear_to)
+        buttonGetPrice = findViewById(R.id.button_get_price)
+        buttonGetLocation = findViewById(R.id.button_get_location)
+        progressBar = findViewById(R.id.progress_bar)
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager?
         val playServicesConnectionResult = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
         handlePlayServicesConnectionResult(playServicesConnectionResult)
@@ -118,11 +117,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buttonGetLocationClicked() {
-        buttonGetLocation.setOnClickListener() {
+        buttonGetLocation.setOnClickListener {
             val geoCoder = Geocoder(applicationContext, Locale.getDefault())
             requestLocationUpdatesAndReturnLastKnown()?.let {
                 try {
-                    val listAddresses = geoCoder.getFromLocation(it.latitude, it.longitude, 1);
+                    val listAddresses = geoCoder.getFromLocation(it.latitude, it.longitude, 1)
                     if (listAddresses != null && listAddresses.isNotEmpty()) {
                         val currentAddress = listAddresses[0]
                         editFrom.setText(currentAddress.getAddressLine(0))
@@ -136,7 +135,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buttonGetPriceClicked() {
-        buttonGetPrice.setOnClickListener() {
+        buttonGetPrice.setOnClickListener {
             if (editFrom.text.isNotBlank() && editTo.text.isNotBlank()) {
                 progressBar.visibility = View.VISIBLE
                 editFrom.isEnabled = false
@@ -168,7 +167,7 @@ class MainActivity : AppCompatActivity() {
                     editFrom.isEnabled = true
                     editTo.isEnabled = true
                     buttonGetPrice.isEnabled = true
-                    showAlert(message as String, isSuccess)
+                    showAlert(message, isSuccess)
                 }
             }
         }
@@ -180,12 +179,12 @@ class MainActivity : AppCompatActivity() {
         with (alert) {
             setMessage(message)
 
-            setNegativeButton("Close") { dialog, _ ->
+            setNegativeButton("Закрити") { dialog, _ ->
                 dialog.dismiss()
             }
 
             if (isSuccess) {
-                setPositiveButton("Знайти нижчу ціну", DialogInterface.OnClickListener { _, _ ->
+                setPositiveButton("Знайти нижчу ціну", { _, _ ->
                     val newIntent = Intent(applicationContext, GetLowerPriceActivity::class.java)
                     this@MainActivity.startActivity(newIntent)
                 })
