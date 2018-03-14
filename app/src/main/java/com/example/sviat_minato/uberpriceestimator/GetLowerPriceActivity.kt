@@ -13,6 +13,7 @@ import android.support.v7.app.AlertDialog
 import android.widget.Button
 import android.widget.EditText
 import android.view.inputmethod.InputMethodManager
+import api.uber.syncGetPriceEstimation
 
 
 class GetLowerPriceActivity : AppCompatActivity() {
@@ -21,6 +22,7 @@ class GetLowerPriceActivity : AppCompatActivity() {
     private var toLatitude: Double? = null
     private var toLongitude: Double? = null
     private var maxRebate: Int? = null
+    private var oldMeanEta: Int? = null
     private lateinit var editDuration: EditText
     private lateinit var editMinRebate: EditText
     private lateinit var buttonStartChecking: Button
@@ -38,6 +40,7 @@ class GetLowerPriceActivity : AppCompatActivity() {
         toLatitude = extras.getDouble("toLatitude")
         toLongitude = extras.getDouble("toLongitude")
         maxRebate = extras.getInt("lowEta", 70)
+        oldMeanEta = extras.getInt("meanEta")
         rebateRange = 5..maxRebate!!
         editDuration = findViewById(R.id.edit_duration)
         editMinRebate = findViewById(R.id.edit_min_rebate)
@@ -58,7 +61,7 @@ class GetLowerPriceActivity : AppCompatActivity() {
 
                 if (duration in DURATION_RANGE && minRebate in rebateRange) {
                     hideKeyboard()
-                    getEstimatesAndSendNotification()
+                    getEstimatesAndSendNotification(duration, minRebate)
                     showAlert("Запит на перевірку успішно відправлено. Після закінчення Ви отримаєте повідомлення.")
                 }
             }
@@ -113,15 +116,58 @@ class GetLowerPriceActivity : AppCompatActivity() {
         }
     }
 
-    private fun getEstimatesAndSendNotification() {
+    private fun getEstimatesAndSendNotification(duration: Int, minRebate: Int) {
         val handler = Handler()
-        val delay: Long = 10000 //milliseconds
+
+        val thread = Thread(Runnable {
+            try {
+                watchForLowerPrice(duration, minRebate, handler)
+            } catch (error: Exception) {
+                println(error.localizedMessage)
+            }
+        })
+
+        thread.start()
+    }
+
+    private fun watchForLowerPrice(duration: Int, minRebate: Int, handler: Handler) {
+        val params = listOf("start_latitude" to fromLatitude, "start_longitude" to fromLongitude,
+                "end_latitude" to toLatitude, "end_longitude" to toLongitude)
+        var count = 0
+        val meanPricesList = mutableListOf(oldMeanEta!!)
+        val delay: Long = 60000
 
         handler.postDelayed(object: Runnable {
             override fun run() {
-                val message = "Найменша вартість поїздки, яку вдалось знайти, була 70 грн."
-                sendNotification("Не вийшло знайти необхідну нижчу ціну", message)
-                handler.postDelayed(this, delay)
+                count++
+                val (isSuccess, meanEta) = syncGetPriceEstimation(params)
+                var lowPriceFound = false
+                if (isSuccess) {
+                    meanPricesList.add(meanEta!!)
+                    lowPriceFound = oldMeanEta!! - meanEta >= minRebate
+                }
+
+                if (lowPriceFound || count >= duration) {
+                    val title: String
+                    var message: String
+
+                    if (lowPriceFound) {
+                        title = "Знайдено необхідну нижчу ціну"
+                        message = "Нова вартість: $meanEta грн.\nПочаткова вартість була $oldMeanEta."
+                    } else {
+                        val lastMeanEta = meanPricesList.last()
+                        meanPricesList.sort()
+                        title = "Не вийшло знайти необхідну нижчу ціну"
+                        message = "Найменша вартість поїздки, яку вдалось знайти, була ${meanPricesList[0]} грн."
+                        message += "\nОстання вартість поїздки була $lastMeanEta грн."
+                        message += "\nПочаткова вартість була $oldMeanEta грн."
+                    }
+
+                    sendNotification(title, message)
+                    handler.removeCallbacks(this)
+                } else {
+                    handler.postDelayed(this, delay)
+                }
             }
         }, delay)
     }

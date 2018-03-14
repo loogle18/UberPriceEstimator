@@ -141,18 +141,18 @@ class MainActivity : AppCompatActivity() {
                 val params = listOf("start_latitude" to fromCoordinates?.latitude, "start_longitude" to fromCoordinates?.longitude,
                         "end_latitude" to toCoordinates?.latitude, "end_longitude" to toCoordinates?.longitude)
 
-                getPriceEstimation(params) { isSuccess, message, lowEta ->
+                getPriceEstimation(params) { isSuccess, message, lowEta, meanEta ->
                     progressBar.visibility = View.GONE
                     editFrom.isEnabled = true
                     editTo.isEnabled = true
                     buttonGetPrice.isEnabled = true
-                    showAlert(message, isSuccess, lowEta)
+                    showAlert(message, isSuccess, lowEta, meanEta)
                 }
             }
         }
     }
 
-    private fun showAlert(message: String, isSuccess: Boolean, lowEta: Int?) {
+    private fun showAlert(message: String, isSuccess: Boolean, lowEta: Int?, meanEta: Int?) {
         val alert = AlertDialog.Builder(this)
 
         with (alert) {
@@ -170,6 +170,7 @@ class MainActivity : AppCompatActivity() {
                     newIntent.putExtra("toLatitude", toCoordinates?.latitude)
                     newIntent.putExtra("toLongitude", toCoordinates?.longitude)
                     newIntent.putExtra("lowEta", lowEta)
+                    newIntent.putExtra("meanEta", meanEta)
                     this@MainActivity.startActivity(newIntent)
                 })
             }
