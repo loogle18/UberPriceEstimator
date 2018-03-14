@@ -14,11 +14,12 @@ class GetLowerPriceActivity : AppCompatActivity() {
     private var fromLongitude: Double? = null
     private var toLatitude: Double? = null
     private var toLongitude: Double? = null
+    private var maxRebate: Int? = null
     private lateinit var editDuration: EditText
     private lateinit var editMinRebate: EditText
     private lateinit var buttonStartChecking: Button
     private val DURATION_RANGE = 5..20
-    private val REBATE_RANGE = 5..70
+    private lateinit var rebateRange: IntRange
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,8 +29,11 @@ class GetLowerPriceActivity : AppCompatActivity() {
         fromLongitude = extras.getDouble("fromLongitude")
         toLatitude = extras.getDouble("toLatitude")
         toLongitude = extras.getDouble("toLongitude")
+        maxRebate = extras.getInt("lowEta", 70)
+        rebateRange = 5..maxRebate!!
         editDuration = findViewById(R.id.edit_duration)
         editMinRebate = findViewById(R.id.edit_min_rebate)
+        editMinRebate.setHint("Мін. зниження ціни (від 5 до $maxRebate)")
         buttonStartChecking = findViewById(R.id.button_start_checking)
 
         buttonStartCheckingClicked()
@@ -43,7 +47,7 @@ class GetLowerPriceActivity : AppCompatActivity() {
                 val duration = Integer.parseInt(durationText)
                 val minRebate = Integer.parseInt(minRebateText)
 
-                if (duration in DURATION_RANGE && minRebate in REBATE_RANGE) {
+                if (duration in DURATION_RANGE && minRebate in rebateRange) {
                     hideKeyboard()
                     showAlert("Запит на перевірку успішно відправлено. Після закінчення Ви отримаєте повідомлення.")
                 }
