@@ -3,7 +3,6 @@ package api.uber
 import com.example.sviat_minato.uberpriceestimator.BuildConfig
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.android.extension.responseJson
-import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
 
 
@@ -36,7 +35,7 @@ fun getPriceEstimation(params: List<Pair<String, Double?>>,
 }
 
 fun syncGetPriceEstimation(params: List<Pair<String, Double?>>): Pair<Boolean, Int?> {
-    val (_, _, result) = UBER_API_ESTIMATES_PRICE_URL.httpGet(params).header(AUTH_HEADER).responseJson()
+    val (_, _, result) = Fuel.get(UBER_API_ESTIMATES_PRICE_URL, params).header(AUTH_HEADER).responseJson()
     var isSuccess = false
     var meanEta: Int? = null
     when (result) {
