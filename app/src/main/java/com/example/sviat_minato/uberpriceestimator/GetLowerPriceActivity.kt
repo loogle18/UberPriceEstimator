@@ -1,11 +1,13 @@
 package com.example.sviat_minato.uberpriceestimator
 
-import android.content.Intent
+import android.content.Context
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.widget.Button
 import android.widget.EditText
+import android.view.inputmethod.InputMethodManager
+
 
 class GetLowerPriceActivity : AppCompatActivity() {
     private var fromLatitude: Double? = null
@@ -42,6 +44,7 @@ class GetLowerPriceActivity : AppCompatActivity() {
                 val minRebate = Integer.parseInt(minRebateText)
 
                 if (duration in DURATION_RANGE && minRebate in REBATE_RANGE) {
+                    hideKeyboard()
                     showAlert("Запит на перевірку успішно відправлено. Після закінчення Ви отримаєте повідомлення.")
                 }
             }
@@ -60,5 +63,13 @@ class GetLowerPriceActivity : AppCompatActivity() {
         }
 
         alert.show()
+    }
+
+    private fun hideKeyboard() {
+        val view = this.currentFocus
+        view?.let {
+            val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(it.windowToken, 0)
+        }
     }
 }
