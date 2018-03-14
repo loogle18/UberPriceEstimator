@@ -1,8 +1,14 @@
 package com.example.sviat_minato.uberpriceestimator
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.graphics.Color
+import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.support.v4.app.NotificationCompat
 import android.support.v7.app.AlertDialog
 import android.widget.Button
 import android.widget.EditText
@@ -20,6 +26,8 @@ class GetLowerPriceActivity : AppCompatActivity() {
     private lateinit var buttonStartChecking: Button
     private val DURATION_RANGE = 5..20
     private lateinit var rebateRange: IntRange
+    private lateinit var notificationManager: NotificationManager
+    private lateinit var notificationBuilder: NotificationCompat.Builder
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +43,8 @@ class GetLowerPriceActivity : AppCompatActivity() {
         editMinRebate = findViewById(R.id.edit_min_rebate)
         editMinRebate.setHint("Мін. зниження ціни (від 5 до $maxRebate)")
         buttonStartChecking = findViewById(R.id.button_start_checking)
-
+        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationBuilder = createNotificationBuilder()
         buttonStartCheckingClicked()
     }
 
@@ -49,10 +58,38 @@ class GetLowerPriceActivity : AppCompatActivity() {
 
                 if (duration in DURATION_RANGE && minRebate in rebateRange) {
                     hideKeyboard()
+                    getEstimatesAndSendNotification()
                     showAlert("Запит на перевірку успішно відправлено. Після закінчення Ви отримаєте повідомлення.")
                 }
             }
         }
+    }
+
+    private fun createNotificationBuilder(channelId: String = "com.sviat_minato.uberpriceestimator.estimate"):
+            NotificationCompat.Builder {
+        val notificationBuilder = NotificationCompat.Builder(applicationContext, channelId)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(channelId, "Uber Estimator Price Estimate", NotificationManager.IMPORTANCE_DEFAULT)
+            channel.setDescription("Information about lower price of uber ride")
+            channel.enableLights(true)
+            channel.setLightColor(Color.BLUE)
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        return notificationBuilder
+    }
+
+    private fun sendNotification(title: String, message: String) {
+        notificationBuilder.setAutoCancel(true)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setWhen(System.currentTimeMillis())
+                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setContentInfo("INFO")
+
+        notificationManager.notify(1, notificationBuilder.build())
     }
 
     private fun showAlert(message: String) {
@@ -75,5 +112,18 @@ class GetLowerPriceActivity : AppCompatActivity() {
             val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             inputMethodManager.hideSoftInputFromWindow(it.windowToken, 0)
         }
+    }
+
+    private fun getEstimatesAndSendNotification() {
+        val handler = Handler()
+        val delay: Long = 10000 //milliseconds
+
+        handler.postDelayed(object : Runnable {
+            override fun run() {
+                val message = "Найменша вартість поїздки, яку вдалось знайти, була 70 грн."
+                sendNotification("Не вийшло знайти необхідну нижчу ціну", message)
+                handler.postDelayed(this, delay)
+            }
+        }, delay)
     }
 }
