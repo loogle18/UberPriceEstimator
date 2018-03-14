@@ -167,6 +167,10 @@ class MainActivity : AppCompatActivity() {
             if (isSuccess) {
                 setPositiveButton("Знайти нижчу ціну", { _, _ ->
                     val newIntent = Intent(applicationContext, GetLowerPriceActivity::class.java)
+                    newIntent.putExtra("fromLatitude", fromCoordinates?.latitude)
+                    newIntent.putExtra("fromLongitude", fromCoordinates?.longitude)
+                    newIntent.putExtra("toLatitude", toCoordinates?.latitude)
+                    newIntent.putExtra("toLongitude", toCoordinates?.longitude)
                     this@MainActivity.startActivity(newIntent)
                 })
             }
