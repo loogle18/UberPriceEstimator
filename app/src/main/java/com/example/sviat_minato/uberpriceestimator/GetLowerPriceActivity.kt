@@ -41,7 +41,7 @@ class GetLowerPriceActivity : AppCompatActivity() {
         rebateRange = 5..maxRebate!!
         editDuration = findViewById(R.id.edit_duration)
         editMinRebate = findViewById(R.id.edit_min_rebate)
-        editMinRebate.setHint("Мін. зниження ціни (від 5 до $maxRebate)")
+        editMinRebate.hint = "Мін. зниження ціни (від 5 до $maxRebate)"
         buttonStartChecking = findViewById(R.id.button_start_checking)
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationBuilder = createNotificationBuilder()
@@ -71,9 +71,9 @@ class GetLowerPriceActivity : AppCompatActivity() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(channelId, "Uber Estimator Price Estimate", NotificationManager.IMPORTANCE_DEFAULT)
-            channel.setDescription("Information about lower price of uber ride")
+            channel.description = "Information about lower price of uber ride"
             channel.enableLights(true)
-            channel.setLightColor(Color.BLUE)
+            channel.lightColor = Color.BLUE
             notificationManager.createNotificationChannel(channel)
         }
 
@@ -117,7 +117,7 @@ class GetLowerPriceActivity : AppCompatActivity() {
         val handler = Handler()
         val delay: Long = 10000 //milliseconds
 
-        handler.postDelayed(object : Runnable {
+        handler.postDelayed(object: Runnable {
             override fun run() {
                 val message = "Найменша вартість поїздки, яку вдалось знайти, була 70 грн."
                 sendNotification("Не вийшло знайти необхідну нижчу ціну", message)
