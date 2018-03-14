@@ -107,8 +107,7 @@ class GetLowerPriceActivity : AppCompatActivity() {
     }
 
     private fun hideKeyboard() {
-        val view = this.currentFocus
-        view?.let {
+        this.currentFocus?.let {
             val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             inputMethodManager.hideSoftInputFromWindow(it.windowToken, 0)
         }
