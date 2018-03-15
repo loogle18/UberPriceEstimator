@@ -55,6 +55,14 @@ class GetLowerPriceActivity : AppCompatActivity() {
         buttonStartCheckingClicked()
     }
 
+    // Clearing all data from previous activity
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val previousIntent = Intent(this, MainActivity::class.java)
+        startActivity(previousIntent)
+        finish()
+    }
+
     private fun buttonStartCheckingClicked() {
         buttonStartChecking.setOnClickListener {
             val durationText = editDuration.text.toString()

@@ -74,6 +74,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onNewIntent(intent: Intent) {
+        editFrom.setText("")
+        editTo.setText("")
+
         intent.extras?.let {
             val notificationTitle = it.getString("notificationTitle", "")
             val notificationText = it.getString("notificationText", "")
