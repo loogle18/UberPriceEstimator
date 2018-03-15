@@ -73,6 +73,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        intent.extras?.let {
+            val notificationTitle = it.getString("notificationTitle", "")
+            val notificationText = it.getString("notificationText", "")
+            if (notificationTitle.isNotBlank() && notificationText.isNotBlank()) {
+                showAlertWithTitle(notificationTitle, notificationText)
+            }
+        }
+    }
+
     private fun editFromAndToClicked(intent: Intent) {
         editFrom.setOnClickListener {
             startActivityForResult(intent, 1)
@@ -150,6 +160,21 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun showAlertWithTitle(title: String, message: String) {
+        val alert = AlertDialog.Builder(this)
+
+        with (alert) {
+            setTitle(title)
+            setMessage(message)
+
+            setNegativeButton("Закрити") { dialog, _ ->
+                dialog.dismiss()
+            }
+        }
+
+        alert.show()
     }
 
     private fun showAlert(message: String, isSuccess: Boolean, lowEta: Int?, meanEta: Int?) {

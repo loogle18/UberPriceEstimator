@@ -14,6 +14,10 @@ import android.widget.Button
 import android.widget.EditText
 import android.view.inputmethod.InputMethodManager
 import api.uber.syncGetPriceEstimation
+import android.content.Intent
+import android.app.PendingIntent
+
+
 
 
 class GetLowerPriceActivity : AppCompatActivity() {
@@ -91,6 +95,13 @@ class GetLowerPriceActivity : AppCompatActivity() {
                 .setContentTitle(title)
                 .setContentText(message)
                 .setContentInfo("INFO")
+
+        val intent = Intent(applicationContext, MainActivity::class.java)
+        intent.putExtra("notificationTitle", title)
+        intent.putExtra("notificationText", message)
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        notificationBuilder.setContentIntent(pendingIntent)
 
         notificationManager.notify(1, notificationBuilder.build())
     }
