@@ -85,7 +85,7 @@ class GetLowerPriceActivity : AppCompatActivity() {
         val notificationBuilder = NotificationCompat.Builder(applicationContext, channelId)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, "Uber Estimator Price Estimate", NotificationManager.IMPORTANCE_DEFAULT)
+            val channel = NotificationChannel(channelId, "Uber Estimator Price Estimate", NotificationManager.IMPORTANCE_HIGH)
             channel.description = "Information about lower price of uber ride"
             channel.enableLights(true)
             channel.lightColor = Color.BLUE
@@ -98,6 +98,7 @@ class GetLowerPriceActivity : AppCompatActivity() {
     private fun sendNotification(title: String, message: String) {
         notificationBuilder.setAutoCancel(true)
                 .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setWhen(System.currentTimeMillis())
                 .setSmallIcon(R.mipmap.ic_launcher_round)
                 .setStyle(NotificationCompat.BigTextStyle()
