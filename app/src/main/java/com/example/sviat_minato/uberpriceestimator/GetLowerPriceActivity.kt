@@ -111,7 +111,7 @@ class GetLowerPriceActivity : AppCompatActivity() {
         intent.putExtra("notificationTitle", title)
         intent.putExtra("notificationText", message)
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_ONE_SHOT)
         notificationBuilder.setContentIntent(pendingIntent)
 
         notificationManager.notify(1, notificationBuilder.build())
