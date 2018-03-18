@@ -16,8 +16,7 @@ import android.view.inputmethod.InputMethodManager
 import api.uber.syncGetPriceEstimation
 import android.content.Intent
 import android.app.PendingIntent
-
-
+import android.os.Looper
 
 
 class GetLowerPriceActivity : AppCompatActivity() {
@@ -140,20 +139,19 @@ class GetLowerPriceActivity : AppCompatActivity() {
     }
 
     private fun getEstimatesAndSendNotification(duration: Int, minRebate: Int) {
-        val handler = Handler()
-
-        val thread = Thread(Runnable {
+        Thread(Runnable {
+            Looper.prepare()
             try {
-                watchForLowerPrice(duration, minRebate, handler)
+                watchForLowerPrice(duration, minRebate)
             } catch (error: Exception) {
                 println(error.localizedMessage)
             }
-        })
-
-        thread.start()
+            Looper.loop()
+        }).start()
     }
 
-    private fun watchForLowerPrice(duration: Int, minRebate: Int, handler: Handler) {
+    private fun watchForLowerPrice(duration: Int, minRebate: Int) {
+        val handler = Handler()
         val params = listOf("start_latitude" to fromLatitude, "start_longitude" to fromLongitude,
                 "end_latitude" to toLatitude, "end_longitude" to toLongitude)
         var count = 0
