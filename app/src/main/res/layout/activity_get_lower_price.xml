@@ -57,11 +57,11 @@
         <android.support.design.widget.TextInputLayout
             android:id="@+id/text_input_layout_duration"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="86dp"
             android:hint="Кількість хвилин (від 5 до 20)"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" >
+            app:layout_constraintTop_toTopOf="parent">
 
             <EditText
                 android:id="@+id/edit_duration"
@@ -77,9 +77,9 @@
         <android.support.design.widget.TextInputLayout
             android:id="@+id/text_input_layout_min_rebate"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="86dp"
+            android:layout_marginTop="16dp"
             android:hint="Мін. зниження ціни (від 5 до 70)"
-            android:layout_marginTop="32dp"
             app:layout_constraintEnd_toEndOf="@+id/text_input_layout_duration"
             app:layout_constraintStart_toStartOf="@+id/text_input_layout_duration"
             app:layout_constraintTop_toBottomOf="@+id/text_input_layout_duration">

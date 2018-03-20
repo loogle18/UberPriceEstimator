@@ -30,6 +30,7 @@ class GetLowerPriceActivity : AppCompatActivity() {
     private lateinit var editDuration: EditText
     private lateinit var editMinRebate: EditText
     private lateinit var textInputLayoutMinRebate: TextInputLayout
+    private lateinit var textInputLayoutDuration: TextInputLayout
     private lateinit var buttonStartChecking: Button
     private val DURATION_RANGE = 5..20
     private lateinit var rebateRange: IntRange
@@ -49,12 +50,15 @@ class GetLowerPriceActivity : AppCompatActivity() {
         rebateRange = 5..maxRebate!!
         editDuration = findViewById(R.id.edit_duration)
         editMinRebate = findViewById(R.id.edit_min_rebate)
+        textInputLayoutDuration = findViewById(R.id.text_input_layout_duration)
         textInputLayoutMinRebate = findViewById(R.id.text_input_layout_min_rebate)
         textInputLayoutMinRebate.hint = "Мін. зниження ціни (від 5 до $maxRebate)"
         buttonStartChecking = findViewById(R.id.button_start_checking)
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationBuilder = createNotificationBuilder()
         buttonStartCheckingClicked()
+        editDurationAndMinRebateFocused()
+        editDurationAndMinRebateClicked()
     }
 
     // Clearing all data from previous activity
@@ -67,17 +71,24 @@ class GetLowerPriceActivity : AppCompatActivity() {
 
     private fun buttonStartCheckingClicked() {
         buttonStartChecking.setOnClickListener {
+            hideKeyboard()
             val durationText = editDuration.text.toString()
             val minRebateText = editMinRebate.text.toString()
             if (durationText.isNotBlank() && minRebateText.isNotBlank()) {
                 val duration = Integer.parseInt(durationText)
                 val minRebate = Integer.parseInt(minRebateText)
-
-                if (duration in DURATION_RANGE && minRebate in rebateRange) {
-                    hideKeyboard()
+                val durationIsValid = duration in DURATION_RANGE
+                val minRebateIsValid = minRebate in rebateRange
+                if (durationIsValid && minRebateIsValid) {
                     getEstimatesAndSendNotification(duration, minRebate)
                     showAlert("Запит на перевірку успішно відправлено. Після закінчення Ви отримаєте повідомлення.")
+                } else {
+                    toggleEditDurationError(!durationIsValid)
+                    toggleEditMinRebateError(!minRebateIsValid)
                 }
+            } else {
+                toggleEditDurationError(true)
+                toggleEditMinRebateError(true)
             }
         }
     }
@@ -138,6 +149,36 @@ class GetLowerPriceActivity : AppCompatActivity() {
         this.currentFocus?.let {
             val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             inputMethodManager.hideSoftInputFromWindow(it.windowToken, 0)
+        }
+    }
+
+    private fun toggleEditDurationError(enable: Boolean) {
+        textInputLayoutDuration.isErrorEnabled = enable
+        textInputLayoutDuration.error = if (enable) "Значення має бути в діапазоні 5-20" else null
+    }
+
+    private fun toggleEditMinRebateError(enable: Boolean) {
+        textInputLayoutMinRebate.isErrorEnabled = enable
+        textInputLayoutMinRebate.error = if (enable) "Значення має бути в діапазоні 5-$maxRebate" else null
+    }
+
+    private fun editDurationAndMinRebateFocused() {
+        editDuration.setOnFocusChangeListener { _, hasFocus ->
+            toggleEditDurationError(!hasFocus)
+        }
+
+        editMinRebate.setOnFocusChangeListener { _, hasFocus ->
+            toggleEditMinRebateError(!hasFocus)
+        }
+    }
+
+    private fun editDurationAndMinRebateClicked() {
+        editDuration.setOnClickListener {
+            toggleEditDurationError(false)
+        }
+
+        editMinRebate.setOnClickListener {
+            toggleEditMinRebateError(false)
         }
     }
 
