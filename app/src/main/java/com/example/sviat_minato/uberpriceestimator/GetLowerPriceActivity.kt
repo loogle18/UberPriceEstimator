@@ -99,7 +99,7 @@ class GetLowerPriceActivity : AppCompatActivity() {
                 .setDefaults(NotificationCompat.DEFAULT_ALL)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setWhen(System.currentTimeMillis())
-                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setSmallIcon(R.drawable.ic_stat_name)
                 .setStyle(NotificationCompat.BigTextStyle()
                         .setBigContentTitle(title)
                         .bigText(message))
