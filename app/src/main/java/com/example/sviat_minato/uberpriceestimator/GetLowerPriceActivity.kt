@@ -17,6 +17,7 @@ import api.uber.syncGetPriceEstimation
 import android.content.Intent
 import android.app.PendingIntent
 import android.os.Looper
+import android.support.design.widget.TextInputLayout
 
 
 class GetLowerPriceActivity : AppCompatActivity() {
@@ -28,6 +29,7 @@ class GetLowerPriceActivity : AppCompatActivity() {
     private var oldMeanEta: Int? = null
     private lateinit var editDuration: EditText
     private lateinit var editMinRebate: EditText
+    private lateinit var textInputLayoutMinRebate: TextInputLayout
     private lateinit var buttonStartChecking: Button
     private val DURATION_RANGE = 5..20
     private lateinit var rebateRange: IntRange
@@ -47,7 +49,8 @@ class GetLowerPriceActivity : AppCompatActivity() {
         rebateRange = 5..maxRebate!!
         editDuration = findViewById(R.id.edit_duration)
         editMinRebate = findViewById(R.id.edit_min_rebate)
-        editMinRebate.hint = "Мін. зниження ціни (від 5 до $maxRebate)"
+        textInputLayoutMinRebate = findViewById(R.id.text_input_layout_min_rebate)
+        textInputLayoutMinRebate.hint = "Мін. зниження ціни (від 5 до $maxRebate)"
         buttonStartChecking = findViewById(R.id.button_start_checking)
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationBuilder = createNotificationBuilder()

@@ -54,32 +54,46 @@
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout">
 
 
-        <EditText
-            android:id="@+id/edit_duration"
-            android:layout_width="0dp"
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/text_input_layout_duration"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:ems="10"
             android:hint="Кількість хвилин (від 5 до 20)"
-            android:inputType="number"
-            android:textColor="@color/colorPrimaryDark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent" >
 
-        <EditText
-            android:id="@+id/edit_min_rebate"
-            android:layout_width="0dp"
+            <EditText
+                android:id="@+id/edit_duration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:ems="10"
+                android:inputType="number"
+                android:textColor="@color/colorPrimaryDark" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/text_input_layout_min_rebate"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:ellipsize="end"
-            android:ems="10"
             android:hint="Мін. зниження ціни (від 5 до 70)"
-            android:inputType="number"
-            android:textColor="@color/colorPrimaryDark"
-            app:layout_constraintEnd_toEndOf="@+id/edit_duration"
-            app:layout_constraintStart_toStartOf="@+id/edit_duration"
-            app:layout_constraintTop_toBottomOf="@+id/edit_duration" />
+            android:layout_marginTop="32dp"
+            app:layout_constraintEnd_toEndOf="@+id/text_input_layout_duration"
+            app:layout_constraintStart_toStartOf="@+id/text_input_layout_duration"
+            app:layout_constraintTop_toBottomOf="@+id/text_input_layout_duration">
+
+            <EditText
+                android:id="@+id/edit_min_rebate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:ems="10"
+                android:inputType="number"
+                android:textColor="@color/colorPrimaryDark" />
+
+        </android.support.design.widget.TextInputLayout>
 
         <Button
             android:id="@+id/button_start_checking"
@@ -90,9 +104,10 @@
             android:padding="14dp"
             android:text="Почати перевіряти"
             android:textColor="@android:color/background_light"
-            app:layout_constraintEnd_toEndOf="@+id/edit_min_rebate"
-            app:layout_constraintStart_toStartOf="@+id/edit_min_rebate"
-            app:layout_constraintTop_toBottomOf="@+id/edit_min_rebate" />
+            app:layout_constraintEnd_toEndOf="@+id/text_input_layout_min_rebate"
+            app:layout_constraintStart_toStartOf="@+id/text_input_layout_min_rebate"
+            app:layout_constraintTop_toBottomOf="@+id/text_input_layout_min_rebate" />
 
     </android.support.constraint.ConstraintLayout>
+
 </android.support.constraint.ConstraintLayout>
