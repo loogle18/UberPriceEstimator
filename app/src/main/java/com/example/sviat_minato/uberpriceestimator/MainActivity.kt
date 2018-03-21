@@ -16,26 +16,18 @@ import android.support.v7.app.AlertDialog
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import android.widget.Button
 import android.widget.EditText
-import android.widget.ProgressBar
 import api.uber.getPriceEstimation
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.SphericalUtil
 import com.google.android.gms.maps.model.LatLng
 import java.io.IOException
 import java.util.*
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity() {
     private lateinit var autocompleteIntent: Intent
-    private lateinit var editFrom: EditText
-    private lateinit var editTo: EditText
-    private lateinit var buttonClearFrom: Button
-    private lateinit var buttonClearTo: Button
-    private lateinit var buttonGetPrice: Button
-    private lateinit var buttonGetLocation: Button
-    private lateinit var progressBar: ProgressBar
     private var fromCoordinates: LatLng? = null
     private var toCoordinates: LatLng? = null
     private var locationManager: LocationManager? = null
@@ -49,13 +41,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        editFrom = findViewById(R.id.edit_duration)
-        editTo = findViewById(R.id.edit_min_rebate)
-        buttonClearFrom = findViewById(R.id.button_clear_from)
-        buttonClearTo = findViewById(R.id.button_clear_to)
-        buttonGetPrice = findViewById(R.id.button_get_price)
-        buttonGetLocation = findViewById(R.id.button_get_location)
-        progressBar = findViewById(R.id.progress_bar)
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager?
         val playServicesConnectionResult = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
         handlePlayServicesConnectionResult(playServicesConnectionResult)

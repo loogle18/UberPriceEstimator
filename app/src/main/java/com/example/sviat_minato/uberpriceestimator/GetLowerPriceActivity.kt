@@ -10,16 +10,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.NotificationCompat
 import android.support.v7.app.AlertDialog
-import android.widget.Button
-import android.widget.EditText
 import android.view.inputmethod.InputMethodManager
 import api.uber.syncGetPriceEstimation
 import android.content.Intent
 import android.app.PendingIntent
 import android.os.Looper
-import android.support.design.widget.TextInputLayout
 import android.text.Editable
 import android.text.TextWatcher
+import kotlinx.android.synthetic.main.activity_get_lower_price.*
 
 
 class GetLowerPriceActivity : AppCompatActivity() {
@@ -29,11 +27,6 @@ class GetLowerPriceActivity : AppCompatActivity() {
     private var toLongitude: Double? = null
     private var maxRebate: Int? = null
     private var oldMeanEta: Int? = null
-    private lateinit var editDuration: EditText
-    private lateinit var editMinRebate: EditText
-    private lateinit var textInputLayoutMinRebate: TextInputLayout
-    private lateinit var textInputLayoutDuration: TextInputLayout
-    private lateinit var buttonStartChecking: Button
     private val DURATION_RANGE = 5..20
     private lateinit var rebateRange: IntRange
     private lateinit var notificationManager: NotificationManager
@@ -42,6 +35,7 @@ class GetLowerPriceActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_get_lower_price)
+
         val extras = intent.extras
         fromLatitude = extras.getDouble("fromLatitude")
         fromLongitude = extras.getDouble("fromLongitude")
@@ -50,12 +44,7 @@ class GetLowerPriceActivity : AppCompatActivity() {
         maxRebate = extras.getInt("lowEta", 70)
         oldMeanEta = extras.getInt("meanEta")
         rebateRange = 5..maxRebate!!
-        editDuration = findViewById(R.id.edit_duration)
-        editMinRebate = findViewById(R.id.edit_min_rebate)
-        textInputLayoutDuration = findViewById(R.id.text_input_layout_duration)
-        textInputLayoutMinRebate = findViewById(R.id.text_input_layout_min_rebate)
         textInputLayoutMinRebate.hint = "Мін. зниження ціни (від 5 до $maxRebate)"
-        buttonStartChecking = findViewById(R.id.button_start_checking)
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationBuilder = createNotificationBuilder()
         buttonStartCheckingClicked()
