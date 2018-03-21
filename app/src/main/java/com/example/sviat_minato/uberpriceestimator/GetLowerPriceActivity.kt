@@ -18,6 +18,8 @@ import android.content.Intent
 import android.app.PendingIntent
 import android.os.Looper
 import android.support.design.widget.TextInputLayout
+import android.text.Editable
+import android.text.TextWatcher
 
 
 class GetLowerPriceActivity : AppCompatActivity() {
@@ -57,8 +59,7 @@ class GetLowerPriceActivity : AppCompatActivity() {
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationBuilder = createNotificationBuilder()
         buttonStartCheckingClicked()
-        editDurationAndMinRebateFocused()
-        editDurationAndMinRebateClicked()
+        editDurationAndMinRebateChanged()
     }
 
     // Clearing all data from previous activity
@@ -71,7 +72,6 @@ class GetLowerPriceActivity : AppCompatActivity() {
 
     private fun buttonStartCheckingClicked() {
         buttonStartChecking.setOnClickListener {
-            hideKeyboard()
             val durationText = editDuration.text.toString()
             val minRebateText = editMinRebate.text.toString()
             if (durationText.isNotBlank() && minRebateText.isNotBlank()) {
@@ -80,6 +80,7 @@ class GetLowerPriceActivity : AppCompatActivity() {
                 val durationIsValid = duration in DURATION_RANGE
                 val minRebateIsValid = minRebate in rebateRange
                 if (durationIsValid && minRebateIsValid) {
+                    hideKeyboard()
                     getEstimatesAndSendNotification(duration, minRebate)
                     showAlert("Запит на перевірку успішно відправлено. Після закінчення Ви отримаєте повідомлення.")
                 } else {
@@ -162,24 +163,22 @@ class GetLowerPriceActivity : AppCompatActivity() {
         textInputLayoutMinRebate.error = if (enable) "Значення має бути в діапазоні 5-$maxRebate" else null
     }
 
-    private fun editDurationAndMinRebateFocused() {
-        editDuration.setOnFocusChangeListener { _, hasFocus ->
-            toggleEditDurationError(!hasFocus)
-        }
+    private fun editDurationAndMinRebateChanged() {
+        editDuration.addTextChangedListener(object: TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun afterTextChanged(p0: Editable?) {
+                toggleEditDurationError(false)
+            }
+        })
 
-        editMinRebate.setOnFocusChangeListener { _, hasFocus ->
-            toggleEditMinRebateError(!hasFocus)
-        }
-    }
-
-    private fun editDurationAndMinRebateClicked() {
-        editDuration.setOnClickListener {
-            toggleEditDurationError(false)
-        }
-
-        editMinRebate.setOnClickListener {
-            toggleEditMinRebateError(false)
-        }
+        editMinRebate.addTextChangedListener(object: TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun afterTextChanged(p0: Editable?) {
+                toggleEditMinRebateError(false)
+            }
+        })
     }
 
     private fun getEstimatesAndSendNotification(duration: Int, minRebate: Int) {
