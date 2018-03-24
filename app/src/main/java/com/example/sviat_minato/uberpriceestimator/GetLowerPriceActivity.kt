@@ -122,17 +122,14 @@ class GetLowerPriceActivity : AppCompatActivity() {
     }
 
     private fun showAlert(message: String) {
-        val alert = AlertDialog.Builder(this)
-
-        with (alert) {
+        with (AlertDialog.Builder(this)) {
             setMessage(message)
 
             setNegativeButton("Закрити") { dialog, _ ->
                 dialog.dismiss()
             }
+            show()
         }
-
-        alert.show()
     }
 
     private fun hideKeyboard() {
