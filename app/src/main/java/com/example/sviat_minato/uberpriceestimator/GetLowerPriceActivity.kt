@@ -7,17 +7,16 @@ import android.graphics.Color
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
 import android.support.v4.app.NotificationCompat
 import android.support.v7.app.AlertDialog
 import android.view.inputmethod.InputMethodManager
 import api.uber.syncGetPriceEstimation
 import android.content.Intent
 import android.app.PendingIntent
-import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import kotlinx.android.synthetic.main.activity_get_lower_price.*
+import java.util.*
 
 
 class GetLowerPriceActivity : AppCompatActivity() {
@@ -173,25 +172,23 @@ class GetLowerPriceActivity : AppCompatActivity() {
 
     private fun getEstimatesAndSendNotification(duration: Int, minRebate: Int) {
         Thread(Runnable {
-            Looper.prepare()
             try {
                 watchForLowerPrice(duration, minRebate)
             } catch (error: Exception) {
                 println(error.localizedMessage)
             }
-            Looper.loop()
         }).start()
     }
 
     private fun watchForLowerPrice(duration: Int, minRebate: Int) {
-        val handler = Handler()
         val params = listOf("start_latitude" to fromLatitude, "start_longitude" to fromLongitude,
                 "end_latitude" to toLatitude, "end_longitude" to toLongitude)
         var count = 0
         val meanPricesList = mutableListOf(oldMeanEta!!)
         val delay: Long = 60000
+        val timer = Timer()
 
-        handler.postDelayed(object: Runnable {
+        timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 count++
                 val (isSuccess, meanEta) = syncGetPriceEstimation(params)
@@ -216,13 +213,10 @@ class GetLowerPriceActivity : AppCompatActivity() {
                         message += "\nОстання вартість поїздки була $lastMeanEta грн."
                         message += "\nПочаткова вартість була $oldMeanEta грн."
                     }
-
                     sendNotification(title, message)
-                    handler.removeCallbacks(this)
-                } else {
-                    handler.postDelayed(this, delay)
+                    timer.cancel()
                 }
             }
-        }, delay)
+        }, delay, delay)
     }
 }
