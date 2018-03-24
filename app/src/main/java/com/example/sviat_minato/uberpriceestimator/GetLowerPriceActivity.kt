@@ -180,14 +180,13 @@ class GetLowerPriceActivity : AppCompatActivity() {
     private fun watchForLowerPrice(duration: Int, minRebate: Int) {
         val params = listOf("start_latitude" to fromLatitude, "start_longitude" to fromLongitude,
                 "end_latitude" to toLatitude, "end_longitude" to toLongitude)
-        var count = 0
         val meanPricesList = mutableListOf(oldMeanEta!!)
         val delay: Long = 60000
         val timer = Timer()
+        val startTime = System.currentTimeMillis()
 
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-                count++
                 val (isSuccess, meanEta) = syncGetPriceEstimation(params)
                 var lowPriceFound = false
                 if (isSuccess) {
@@ -195,7 +194,9 @@ class GetLowerPriceActivity : AppCompatActivity() {
                     lowPriceFound = oldMeanEta!! - meanEta >= minRebate
                 }
 
-                if (lowPriceFound || count >= duration) {
+                val isTimeFinished = (System.currentTimeMillis() - startTime) >= 60000 * duration
+
+                if (lowPriceFound || isTimeFinished) {
                     val title: String
                     var message: String
 
